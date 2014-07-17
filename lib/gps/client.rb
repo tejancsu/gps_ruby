@@ -17,11 +17,12 @@ class Gps::Client
 
   def execute(request_type, params, url_params = {})
     @logger_id = UUIDTools::UUID.timestamp_create.to_s
-    @logger.info(@logger_id, "execute.start", params)
+    params.dottable! if params.respond_to?(:dottable!)
+    @logger.info(@logger_id, "execute.start", params.to_hash)
     if Gps::Request::Types::ALL.include?(request_type)
       begin
         if Rails.env.test? && !url_params.include?(:stubbed_response)
-          url_params[:stubbed_response] = generic_stubbed_response(request_type).dottable!
+          url_params[:stubbed_response] = generic_stubbed_response(request_type, params)
         elsif return_stubbed_response?(request_type)
           url_params[:stubbed_response] = stubbed_response(request_type)
         end
@@ -76,24 +77,23 @@ class Gps::Client
 
     begin
       # For testing.
-      if !request.params[:stubbed_response].nil?
+      if !request.stubbed_response.nil?
         @logger.info(@logger_id, "send_request.stubbed_response", {
-          :stubbed_response => request.params[:stubbed_response].inspect
+          :stubbed_response => request.stubbed_response.inspect
         })
-        if request.params[:stubbed_response] == "TimeoutException"
+        if request.stubbed_response == "TimeoutException"
           raise TimeoutException.new "Typhoeus Timeout"
-        elsif request.params[:stubbed_response] == "GpsException"
+        elsif request.stubbed_response == "GpsException"
           raise GpsException.new "Error Response: 500"
         else
-          typhoeus_response = request.params[:stubbed_response]
+          typhoeus_response = request.stubbed_response
         end
       else
         typhoeus_response = send_typhoeus_request(typhoeus_request, request.type)
       end
 
       return :succeeded, typhoeus_response
-
-    rescue TimeoutException, GpsException => e
+    rescue TimeoutException, GpsException, StandardError => e
       return :failed, e.message
     end
   end
@@ -172,28 +172,67 @@ class Gps::Client
     end
   end
 
-  def generic_stubbed_response(request_type)
+  def generic_stubbed_response(request_type, params)
     case request_type
     when Gps::Request::Types::CREATE_BILLING_RECORD
-      {
-        :billing_record => stubbed_billing_record
-      }
+        { "type" => params.type,
+          "id" => params.id,
+          "variant" => params.id,
+          "billingAddress" =>
+            { "name" => params.billing_address.name,
+              "state" => params.billing_address.state,
+              "countryIsoCode" => params.billing_address.country_iso_code,
+              "city" => params.billing_address.city,
+              "postalCode" => params.billing_address.postal_code,
+              "addressLine1" => params.billing_address.address_line1,
+              "addressLine2" => params.billing_address.address_line2,
+              "district" => params.billing_address.district
+            },
+          "purchaser" =>
+            { "name" => params.purchaser.name,
+              "id" => params.purchaser.id,
+              "locale" => params.purchaser.locale,
+              "email" => params.purchaser.email
+            },
+          "paymentData" =>
+            { "name" => params.payment_data.holder_name,
+              "number" => params.payment_data.number,
+              "cvv" => params.payment_data.cvv,
+              "expiryMonth" => params.payment_data.expiry_month,
+              "expiryYear" => params.payment_data.expiry_year
+            },
+          "tokenData" =>
+          [ {
+              "tokenStore" => "ADYEN",
+              "tokenId" => "adyenRecurringId-123",
+              "status" => "UPTODATE"
+            },
+            {
+              "tokenStore" => "PCI-TOKENIZER",
+              "tokenId" => "9901900000000051111",
+              "status" => "UPTODATE"
+            } ],
+          "created_at" => Time.now,
+          "updated_at" => Time.now
+      }.to_json
     when Gps::Request::Types::GET_BILLING_RECORDS
       {
         :billing_records => [stubbed_billing_record]
-      }
+      }.to_json
     when Gps::Request::Types::GET_PAYMENT_ATTRIBUTES
       {
         :payment_attributes => []
-      }
+      }.to_json
     when Gps::Request::Types::GET_PAYMENT_TYPES
       {
         :payment_types => stubbed_payment_types
-      }
+      }.to_json
+    when Gps::Request::Types::PAYMENTS
+      {}.to_json
     else
       {
         :generic_response => "response"
-      }
+      }.to_json
     end
   end
 

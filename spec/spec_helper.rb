@@ -1,6 +1,7 @@
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 
 require 'bundler'
+require 'ruby-debug'
 require 'gps'
 require 'logger'
 require 'rspec'
