@@ -24,12 +24,12 @@ unless Hash.new.respond_to? :dottable!
         module ClassMethods
           def extend_nodes(node)
             node
-            case node
-              when Array
+            case node.class.to_s
+              when "Array"
                 node.each do |v|
                   extend_nodes(v)
                 end
-              when Hash
+              when "Hash"
                 node.extend(::Core::Hash::Dottable::InstanceMethods)
                 node.each do |k, v|
                   extend_nodes(v)
@@ -54,7 +54,7 @@ unless Hash.new.respond_to? :dottable!
           end
 
           def id
-            sym      = :id
+            sym = :id
             sym_to_s = sym.to_s
             if has_key?(sym_to_s)
               self[sym_to_s]

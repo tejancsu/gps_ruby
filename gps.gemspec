@@ -31,4 +31,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rake', '>= 10.0.0'
   s.add_development_dependency 'rspec', '~> 2.12.0'
   s.add_development_dependency 'uuidtools', '2.1.2'
+  s.add_development_dependency 'ruby-debug'
+
 end
