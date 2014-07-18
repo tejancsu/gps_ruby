@@ -84,7 +84,7 @@ module Gps::RequestValidator
 
   def val_for(object, keys)
     if object.class == Hash
-      keys.inject(object) { |h, key| h[key] }
+      keys.inject(object) { |h, key| h[key.to_s] || h[key.to_sym] }
     else
       keys.inject(object) do |o, key|
         if o.respond_to? key

@@ -50,6 +50,14 @@ describe Gps::Request::CreateBillingRecordRequest do
     expect{ Gps::Request::CreateBillingRecordRequest.new(host, billing_record_request) }.to_not raise_error
   end
 
+  context "when keys which are not defined properties exist in the request params" do
+    it "creates request object successfully" do
+      br_request_hash = billing_record_request.to_hash
+      br_request_hash["bleh"] = "pgriffin"
+      expect{ Gps::Request::CreateBillingRecordRequest.new(host, br_request_hash) }.to_not raise_error
+    end
+  end
+
   context "when a property is missing" do
 
     context "when variant is not present" do
