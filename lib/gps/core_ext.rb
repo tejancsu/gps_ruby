@@ -8,6 +8,17 @@ unless Object.const_defined?('Rails')
   end
 end
 
+# rails try
+class Object
+  def try(method)
+    if self.respond_to?(method.to_sym)
+      self.send(method)
+    else
+      nil
+    end
+  end
+end
+
 # lib/core/hash/dottable.rb
 unless Hash.new.respond_to? :dottable!
   module Core
