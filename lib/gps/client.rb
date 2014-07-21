@@ -175,31 +175,31 @@ class Gps::Client
   def generic_stubbed_response(request_type, params)
     case request_type
     when Gps::Request::Types::CREATE_BILLING_RECORD
-        { "type" => params.type,
-          "id" => params.id,
-          "variant" => params.id,
+        { "type" => params.try(:type),
+          "id" => params.try(:id),
+          "variant" => params.try(:id),
           "billingAddress" =>
-            { "name" => params.billing_address.name,
-              "state" => params.billing_address.state,
-              "countryIsoCode" => params.billing_address.country_iso_code,
-              "city" => params.billing_address.city,
-              "postalCode" => params.billing_address.postal_code,
-              "addressLine1" => params.billing_address.address_line1,
-              "addressLine2" => params.billing_address.address_line2,
-              "district" => params.billing_address.district
+            { "name" => params.try(:billing_address).try(:name),
+              "state" => params.try(:billing_address).try(:state),
+              "countryIsoCode" => params.try(:billing_address).try(:country_iso_code),
+              "city" => params.try(:billing_address).try(:city),
+              "postalCode" => params.try(:billing_address).try(:postal_code),
+              "addressLine1" => params.try(:billing_address).try(:address_line1),
+              "addressLine2" => params.try(:billing_address).try(:address_line2),
+              "district" => params.try(:billing_address).try(:district)
             },
           "purchaser" =>
-            { "name" => params.purchaser.name,
-              "id" => params.purchaser.id,
-              "locale" => params.purchaser.locale,
-              "email" => params.purchaser.email
+            { "name" => params.try(:purchaser).try(:name),
+              "id" => params.try(:purchaser).try(:id),
+              "locale" => params.try(:purchaser).try(:locale),
+              "email" => params.try(:purchaser).try(:email)
             },
           "paymentData" =>
-            { "name" => params.payment_data.holder_name,
-              "number" => params.payment_data.number,
-              "cvv" => params.payment_data.cvv,
-              "expiryMonth" => params.payment_data.expiry_month,
-              "expiryYear" => params.payment_data.expiry_year
+            { "name" => params.try(:payment_data).try(:holder_name),
+              "number" => params.try(:payment_data).try(:number),
+              "cvv" => params.try(:payment_data).try(:cvv),
+              "expiryMonth" => params.try(:payment_data).try(:expiry_month),
+              "expiryYear" => params.try(:payment_data).try(:expiry_year)
             },
           "tokenData" =>
           [ {
