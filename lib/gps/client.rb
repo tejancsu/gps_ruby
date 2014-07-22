@@ -175,9 +175,9 @@ class Gps::Client
   def generic_stubbed_response(request_type, params)
     case request_type
     when Gps::Request::Types::CREATE_BILLING_RECORD
-        { "type" => params.try(:type),
+        { "type" => params[:type], # params.type will return Hash
           "id" => params.try(:id),
-          "variant" => params.try(:id),
+          "variant" => params.try(:variant),
           "billingAddress" =>
             { "name" => params.try(:billing_address).try(:name),
               "state" => params.try(:billing_address).try(:state),
@@ -229,6 +229,23 @@ class Gps::Client
       }.to_json
     when Gps::Request::Types::PAYMENTS
       {}.to_json
+    when Gps::Request::Types::AUTHORIZE
+      {
+        "links" => {
+          "self" => {
+            "href" => "http://payments-vip.xxx/{countryCode}/payments/{id}"
+          },
+          "capture" => {
+            "href" => "http://payments-vip.xxx/{countryCode}/payments/{id}/capture",
+            "method" => "POST",
+            "type" => "application/json",
+            "data" => {
+            }
+          }
+        },
+        "id" => params.try(:payment_details).try(:id),
+        "databaseId" => params.try(:payment_details).try(:database_id)
+      }.to_json
     else
       {
         :generic_response => "response"

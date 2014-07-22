@@ -27,7 +27,8 @@ module Gps::RequestValidator
     end
 
     def property(property_name, options = {})
-      new_prop = Property.new(property_name, options[:required])
+      required = options[:required] != false # default true
+      new_prop = Property.new(property_name, required)
       if @parent_property
         @parent_property.associated_properties << new_prop
       else

@@ -6,6 +6,41 @@ describe Gps::Client do
   # These will eventually be in helper files
   def get_dummy_request_params(request_type)
     case request_type
+    when Gps::Request::Types::AUTHORIZE
+      {
+        :payment_details => {
+          :id => UUIDTools::UUID.random_create,
+          :database_id => 12345,
+          :payment_support_reference => "aoeuaoeu1",
+          :billing_record => {
+            :id => UUIDTools::UUID.random_create
+          },
+          :amount => {
+            :value => 1234, # minor units
+            :currency_code => "USD"
+          },
+          :application_base_url => "aoeuaoeuaoeu.com",
+          :context => {
+            :client_ip => "127.0.0.01",
+            :origin_client_id => "iOS-client-id",
+            :client_id => "orders-client_id",
+            :accept_header => "header!!",
+            :user_agent => "Mozilla/5.0"
+          }
+        },
+        :settlement_details => {
+          :version => "1.0",
+          :items => [
+            {
+              :amount => {
+                :value => 617,
+                :currency_code => "USD"
+              },
+              :type => "GLOBAL_TRAVEL"
+            }
+          ]
+        }
+      }
     when Gps::Request::Types::CAPTURE, Gps::Request::Types::CANCEL, Gps::Request::Types::REFUND, Gps::Request::Types::PAYMENTS
       {
         :country_code => "DE",
@@ -13,9 +48,26 @@ describe Gps::Client do
       }
     when Gps::Request::Types::CREATE_BILLING_RECORD
       {
-        :country_code => "DE",
-        :billing_record_request => 1,
-        :consumer_id => 123
+        :id => UUIDTools::UUID.random_create,
+        :type => 'creditcard',
+        :variant => 'visa',
+        :billing_address => { :postal_code      => '12345',
+                              :country_iso_code => 'DE',
+                              :state            => 'State',
+                              :district         => 'District',
+                              :city             => 'Town',
+                              :address_line1    => 'Street 12',
+                              :address_line2    => 'last House in the street',
+                              :name             => 'Mr & Ms Muster' },
+        :payment_data => {  :holder_name    => 'Max Muster',
+                            :number         => '4242424242424242',
+                            :cvv            => '1234',
+                            :expiry_month   => '12',
+                            :expiry_year    => '2017' },
+        :purchaser => { :name           => ' Marianne Muster',
+                        :email          =>  'marianne.muster@example.com',
+                        :locale         =>  'de_DE',
+                        :id             =>  UUIDTools::UUID.random_create }
       }
     when Gps::Request::Types::GET_BILLING_RECORDS
       {
@@ -29,7 +81,7 @@ describe Gps::Client do
         :payment_type => "paypal",
         :country_code => "DE"
       }
-    when Gps::Request::Types::AUTHORIZE, Gps::Request::Types::GET_PAYMENT_TYPES
+    when Gps::Request::Types::GET_PAYMENT_TYPES
       { :country_code => "DE" }
     else
       {}
@@ -38,17 +90,17 @@ describe Gps::Client do
 
   def execute_dummy_expect_success(request_type, pass_nil_logger = false)
     request_params = get_dummy_request_params(request_type)
-    execute_expect_success(request_type, request_params, {}, pass_nil_logger)
+    return [request_params, execute_expect_success(request_type, request_params, {}, pass_nil_logger)]
   end
 
   def execute_dummy_expect_timeout(request_type)
     request_params = get_dummy_request_params(request_type)
-    execute_expect_timeout(request_type, request_params)
+    return [request_params, execute_expect_timeout(request_type, request_params)]
   end
 
   def execute_dummy_expect_gps_fail(request_type)
     request_params = get_dummy_request_params(request_type)
-    execute_expect_gps_fail(request_type, request_params)
+    return [request_params, execute_expect_gps_fail(request_type, request_params)]
   end
 
   def execute_expect_success(request_type, request_params, url_params, pass_nil_logger = false)
@@ -79,125 +131,77 @@ describe Gps::Client do
     Object.const_defined?('GPS_CLIENT_LOGGER') ? GPS_CLIENT_LOGGER : nil
   end
 
-  def check_response(request_type, response)
+  def check_response(request_type, request_params, response)
     case request_type
     when Gps::Request::Types::CREATE_BILLING_RECORD
-      response.billing_record.should_not be_nil
+      br = response.billing_record
+      br["type"].should == request_params[:type]
+      br["id"].should == request_params[:id].to_s
+      br["variant"].should == request_params[:variant]
+      br["created_at"].should be_present
+      br["updated_at"].should be_present
+
+      br["billingAddress"]["name"].should == request_params[:billing_address][:name]
+      br["billingAddress"]["state"].should == request_params[:billing_address][:state]
+      br["billingAddress"]["countryIsoCode"].should == request_params[:billing_address][:country_iso_code]
+      br["billingAddress"]["city"].should == request_params[:billing_address][:city]
+      br["billingAddress"]["postalCode"].should == request_params[:billing_address][:postal_code]
+      br["billingAddress"]["addressLine1"].should == request_params[:billing_address][:address_line1]
+      br["billingAddress"]["addressLine2"].should == request_params[:billing_address][:address_line2]
+      br["billingAddress"]["district"].should == request_params[:billing_address][:district]
+
+      br["purchaser"]["name"].should == request_params[:purchaser][:name]
+      br["purchaser"]["id"].should == request_params[:purchaser][:id].to_s
+      br["purchaser"]["locale"].should == request_params[:purchaser][:locale]
+      br["purchaser"]["email"].should == request_params[:purchaser][:email]
+
+      br["paymentData"]["name"].should == request_params[:payment_data][:holder_name]
+      br["paymentData"]["number"].should == request_params[:payment_data][:number]
+      br["paymentData"]["cvv"].should == request_params[:payment_data][:cvv]
+      br["paymentData"]["expiryMonth"].should == request_params[:payment_data][:expiry_month]
+      br["paymentData"]["expiryYear"].should == request_params[:payment_data][:expiry_year]
+
+      br["tokenData"].should be_present
     when Gps::Request::Types::GET_BILLING_RECORDS
       response.billing_records.should_not be_nil
     when Gps::Request::Types::GET_PAYMENT_ATTRIBUTES
       response.payment_attributes.should_not be_nil
     when Gps::Request::Types::GET_PAYMENT_TYPES
       response.payment_types.should_not be_nil
+    when Gps::Request::Types::AUTHORIZE
+      response.response["links"].should_not be_nil
+      response.response["links"]["capture"].should_not be_nil
+      response.response["id"].should == request_params[:payment_details][:id].to_s
+      response.response["databaseId"].should == request_params[:payment_details][:database_id]
     else
     end
   end
 
   context '#execute' do
-    (REQUEST_TYPES - [Gps::Request::Types::CREATE_BILLING_RECORD]).each do |request_type|
+    REQUEST_TYPES.each do |request_type|
       context "#{request_type.to_s}" do
         context "when passing the GPS_CLIENT_LOGGER" do
           it "succeeds and passes the response" do
-            response = execute_dummy_expect_success(request_type)
+            params, response = execute_dummy_expect_success(request_type)
             response.status.should == :succeeded
             response.success?.should be_true
             response.errors.should be_nil
-            check_response(request_type, response)
+            check_response(request_type, params, response)
           end
           it "times out and passes the response" do
-            response = execute_dummy_expect_timeout(request_type)
+            params, response = execute_dummy_expect_timeout(request_type)
             response.status.should == :failed
             response.success?.should be_false
             response.errors.should == ["Typhoeus Timeout"]
           end
           it "gps fails and passes the response" do
-            response = execute_dummy_expect_gps_fail(request_type)
+            params, response = execute_dummy_expect_gps_fail(request_type)
             response.status.should == :failed
             response.success?.should be_false
             response.errors.should == ["Error Response: 500"]
           end
         end
-
-        context "when not passing a logger, logs to STDOUT" do
-          it "succeeds and passes the response" do
-            response = execute_dummy_expect_success(request_type, true)
-            response.status.should == :succeeded
-            response.success?.should be_true
-            response.errors.should be_nil
-            check_response(request_type, response)
-          end
-        end
       end
     end
   end
-
-
-let(:billing_record_request) do
-  {
-    :id => UUIDTools::UUID.random_create,
-    :type => 'creditcard',
-    :variant => 'visa',
-    :billing_address => { :postal_code      => '12345',
-                          :country_iso_code => 'DE',
-                          :state            => 'State',
-                          :district         => 'District',
-                          :city             => 'Town',
-                          :address_line1    => 'Street 12',
-                          :address_line2    => 'last House in the street',
-                          :name             => 'Mr & Ms Muster' },
-    :payment_data => {  :holder_name    => 'Max Muster',
-                        :number         => '4242424242424242',
-                        :cvv            => '1234',
-                        :expiry_month   => '12',
-                        :expiry_year    => '2017' },
-    :purchaser => { :name           => ' Marianne Muster',
-                    :email          =>  'marianne.muster@example.com',
-                    :locale         =>  'de_DE',
-                    :id             =>  UUIDTools::UUID.random_create }
-
-  }
-end
-
-
-  context '#execute' do
-    request_type = Gps::Request::Types::CREATE_BILLING_RECORD
-    context "#{request_type.to_s}" do
-      context "when passing the GPS_CLIENT_LOGGER" do
-        it "succeeds and passes the response" do
-          request_params = billing_record_request
-          response = execute_expect_success(request_type, request_params, {}, pass_nil_logger = false)
-          response.status.should == :succeeded
-          response.success?.should be_true
-          response.errors.should be_nil
-          check_response(request_type, response)
-        end
-        it "times out and passes the response" do
-          request_params = billing_record_request
-          response = execute_expect_timeout(request_type, request_params)
-          response.status.should == :failed
-          response.success?.should be_false
-          response.errors.should == ["Typhoeus Timeout"]
-        end
-        it "gps fails and passes the response" do
-          request_params = billing_record_request
-          response = execute_expect_gps_fail(request_type, request_params)
-          response.status.should == :failed
-          response.success?.should be_false
-          response.errors.should == ["Error Response: 500"]
-        end
-      end
-
-      context "when not passing a logger, logs to STDOUT" do
-        it "succeeds and passes the response" do
-          request_params = billing_record_request
-          response = execute_expect_success(request_type,request_params, {}, true)
-          response.status.should == :succeeded
-          response.success?.should be_true
-          response.errors.should be_nil
-          check_response(request_type, response)
-        end
-      end
-    end
-  end
-
 end
