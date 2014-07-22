@@ -11,14 +11,13 @@ require 'typhoeus'
 
 require 'gps/core_ext'
 
-require 'gps/billing_record'
 require 'gps/config'
 require 'gps/client'
 require 'gps/logger'
 require 'gps/payment_type'
 require 'gps/request_validator'
-require 'gps/stubbed_billing_record'
 require 'gps/version'
+require 'gps/stubbed_billing_record'
 
 require 'gps/models/resource'
 require 'gps/models/amount'

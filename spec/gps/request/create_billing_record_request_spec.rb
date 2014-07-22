@@ -16,20 +16,20 @@ describe Gps::Request::CreateBillingRecordRequest do
 
   def sample_payment_data
     {
-      :holder_name  => 'Max Muster',
-      :number       => '4242424242424242',
-      :cvv          => '1234',
-      :expiry_month => '12',
-      :expiry_year  => '2017'
+     :holder_name    => 'Max Muster',
+     :number         => '4242424242424242',
+     :cvv            => '1234',
+     :expiry_month   => '12',
+     :expiry_year    => '2017'
     }
   end
 
   def sample_purchaser
     {
-      :name   => ' Marianne Muster',
-      :email  => 'marianne.muster@example.com',
-      :locale => 'de_DE',
-      :id     => UUIDTools::UUID.random_create
+      :name           => 'Marianne Muster',
+      :email          => 'marianne.muster@example.com',
+      :locale         => 'de_DE',
+      :id             => UUIDTools::UUID.random_create.to_s
     }
   end
 
@@ -38,7 +38,7 @@ describe Gps::Request::CreateBillingRecordRequest do
       :billing_address => sample_billing_address,
       :payment_data => sample_payment_data,
       :purchaser => sample_purchaser,
-      :id => UUIDTools::UUID.random_create,
+      :id => UUIDTools::UUID.random_create.to_s,
       :type => 'creditcard',
       :variant => 'visa'
     }
