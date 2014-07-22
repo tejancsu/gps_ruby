@@ -3,7 +3,10 @@ module Gps::Request::Types
   CAPTURE = :capture
   CANCEL = :cancel
   REFUND = :refund
-  PAYMENTS = :payments
+  COMPLETE_AUTH = :complete_auth
+
+  SHOW_PAYMENT = :show_payment
+
   CREATE_BILLING_RECORD = :create_billing_record
   GET_BILLING_RECORDS = :get_billing_records
   GET_PAYMENT_ATTRIBUTES = :get_payment_attributes
@@ -14,7 +17,8 @@ module Gps::Request::Types
     CAPTURE,
     CANCEL,
     REFUND,
-    PAYMENTS,
+    COMPLETE_AUTH,
+    SHOW_PAYMENT,
     CREATE_BILLING_RECORD,
     GET_BILLING_RECORDS,
     GET_PAYMENT_ATTRIBUTES,

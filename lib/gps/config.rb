@@ -13,11 +13,12 @@ class Gps::Config
         'capture'                => {'connect_timeout' => DEFAULT_CONNECT_TIMEOUT, 'read_timeout' => DEFAULT_READ_TIMEOUT},
         'refund'                 => {'connect_timeout' => DEFAULT_CONNECT_TIMEOUT, 'read_timeout' => DEFAULT_READ_TIMEOUT},
         'cancel'                 => {'connect_timeout' => DEFAULT_CONNECT_TIMEOUT, 'read_timeout' => DEFAULT_READ_TIMEOUT},
+        'complete_auth'          => {'connect_timeout' => DEFAULT_CONNECT_TIMEOUT, 'read_timeout' => DEFAULT_READ_TIMEOUT},
+        'show_payment'           => {'connect_timeout' => DEFAULT_CONNECT_TIMEOUT, 'read_timeout' => DEFAULT_READ_TIMEOUT},
         'get_billing_records'    => {'connect_timeout' => DEFAULT_CONNECT_TIMEOUT, 'read_timeout' => DEFAULT_READ_TIMEOUT},
         'create_billing_record'  => {'connect_timeout' => DEFAULT_CONNECT_TIMEOUT, 'read_timeout' => DEFAULT_READ_TIMEOUT},
         'get_payment_types'      => {'connect_timeout' => DEFAULT_CONNECT_TIMEOUT, 'read_timeout' => DEFAULT_READ_TIMEOUT},
-        'get_payment_attributes' => {'connect_timeout' => DEFAULT_CONNECT_TIMEOUT, 'read_timeout' => DEFAULT_READ_TIMEOUT},
-        'payments'               => {'connect_timeout' => DEFAULT_CONNECT_TIMEOUT, 'read_timeout' => DEFAULT_READ_TIMEOUT}
+        'get_payment_attributes' => {'connect_timeout' => DEFAULT_CONNECT_TIMEOUT, 'read_timeout' => DEFAULT_READ_TIMEOUT}
     }
   end
 

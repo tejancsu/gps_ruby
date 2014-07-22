@@ -1,14 +1,12 @@
 class Gps::Request::GetPaymentTypesRequest < Gps::Request::Base
+  property :country_code
+
   def type
     Gps::Request::Types::GET_PAYMENT_TYPES
   end
 
-  def params_list
-    super
-  end
-
   def url
-    "#{@host}/#{@url_params[:country_code]}/payment_types"
+    "#{@host}/#{@params.country_code}/payment_types"
   end
 
   def http_method

@@ -8,12 +8,13 @@ describe Gps::Client do
     case request_type
     when Gps::Request::Types::AUTHORIZE
       {
+        :country_code => "DE",
         :payment_details => {
-          :id => UUIDTools::UUID.random_create,
+          :id => UUIDTools::UUID.random_create.to_s,
           :database_id => 12345,
           :payment_support_reference => "aoeuaoeu1",
           :billing_record => {
-            :id => UUIDTools::UUID.random_create
+            :id => UUIDTools::UUID.random_create.to_s
           },
           :amount => {
             :value => 1234, # minor units
@@ -41,14 +42,51 @@ describe Gps::Client do
           ]
         }
       }
-    when Gps::Request::Types::CAPTURE, Gps::Request::Types::CANCEL, Gps::Request::Types::REFUND, Gps::Request::Types::PAYMENTS
+    when Gps::Request::Types::CAPTURE
+      {
+        :country_code => "DE",
+        :payment_id => UUIDTools::UUID.random_create.to_s,
+        :capture_details => {
+          :id => UUIDTools::UUID.random_create.to_s,
+          :amount => {
+            :value => 1234, # minor units
+            :currency_code => "USD"
+          }
+        }
+      }
+    when Gps::Request::Types::REFUND
+      {
+        :country_code => "DE",
+        :payment_id => UUIDTools::UUID.random_create.to_s,
+        :refund_details => {
+          :id => UUIDTools::UUID.random_create.to_s,
+          :amount => {
+            :value => 1234, # minor units
+            :currency_code => "USD"
+          },
+        },
+        :settlement_details => {
+          :version => "1.0",
+          :items => [
+            {
+              :amount => {
+                :value => 617,
+                :currency_code => "USD"
+              },
+              :type => "GLOBAL_TRAVEL"
+            }
+          ]
+        }
+      }
+    when Gps::Request::Types::CANCEL, Gps::Request::Types::REFUND,
+      Gps::Request::Types::COMPLETE_AUTH, Gps::Request::Types::SHOW_PAYMENT
       {
         :country_code => "DE",
         :payment_id => "12341234-1234-1234-1234-123412341234"
       }
     when Gps::Request::Types::CREATE_BILLING_RECORD
       {
-        :id => UUIDTools::UUID.random_create,
+        :id => UUIDTools::UUID.random_create.to_s,
         :type => 'creditcard',
         :variant => 'visa',
         :billing_address => { :postal_code      => '12345',
@@ -67,7 +105,7 @@ describe Gps::Client do
         :purchaser => { :name           => ' Marianne Muster',
                         :email          =>  'marianne.muster@example.com',
                         :locale         =>  'de_DE',
-                        :id             =>  UUIDTools::UUID.random_create }
+                        :id             =>  UUIDTools::UUID.random_create.to_s }
       }
     when Gps::Request::Types::GET_BILLING_RECORDS
       {
@@ -90,7 +128,7 @@ describe Gps::Client do
 
   def execute_dummy_expect_success(request_type, pass_nil_logger = false)
     request_params = get_dummy_request_params(request_type)
-    return [request_params, execute_expect_success(request_type, request_params, {}, pass_nil_logger)]
+    return [request_params, execute_expect_success(request_type, request_params, pass_nil_logger)]
   end
 
   def execute_dummy_expect_timeout(request_type)
@@ -103,24 +141,24 @@ describe Gps::Client do
     return [request_params, execute_expect_gps_fail(request_type, request_params)]
   end
 
-  def execute_expect_success(request_type, request_params, url_params, pass_nil_logger = false)
-    execute_request(request_type, request_params, url_params, pass_nil_logger)
+  def execute_expect_success(request_type, request_params, pass_nil_logger = false)
+    execute_request(request_type, request_params, pass_nil_logger)
   end
 
   def execute_expect_timeout(request_type, request_params)
-    url_params = { :stubbed_response => "TimeoutException" }
-    execute_request(request_type, request_params, url_params)
+    request_params.merge!({ :stubbed_response => "TimeoutException" })
+    execute_request(request_type, request_params)
   end
 
   def execute_expect_gps_fail(request_type, request_params)
-    url_params = { :stubbed_response => "GpsException" }
-    execute_request(request_type, request_params, url_params)
+    request_params.merge!({ :stubbed_response => "GpsException" })
+    execute_request(request_type, request_params)
   end
 
-  def execute_request(request_type, request_params, url_params = {}, pass_nil_logger = false)
+  def execute_request(request_type, request_params, pass_nil_logger = false)
     logger = pass_nil_logger ? nil : get_gps_logger
     client = Gps::Client.new(get_gps_config, logger)
-    client.execute(request_type, request_params, url_params)
+    client.execute(request_type, request_params)
   end
 
   def get_gps_config
@@ -199,6 +237,16 @@ describe Gps::Client do
             response.status.should == :failed
             response.success?.should be_false
             response.errors.should == ["Error Response: 500"]
+          end
+          it "returns an error if a required property is not present" do
+            params = get_dummy_request_params(request_type)
+            params.dottable!
+            missing_param = params.first[0]
+            params[missing_param] = nil
+            response = execute_expect_success(request_type, params, false)
+            response.status.should == :failed
+            response.errors.count.should == 1
+            response.errors[0].should == "The property '#{missing_param}' is not defined for Gps::Request::#{request_type.to_s.camelize}Request."
           end
         end
       end

@@ -1,16 +1,9 @@
 class Gps::Request::GetBillingRecordsRequest < Gps::Request::Base
+  property :country_code
+  property :consumer_id
+  
   def type
     Gps::Request::Types::GET_BILLING_RECORDS
-  end
-
-  def params_list
-    super.merge(
-      {
-        :consumer_id => { :required => true },
-        :billing_record_ids => { :required => true },
-        :active_only => { :required => true }
-      }
-    )
   end
 
   def url
