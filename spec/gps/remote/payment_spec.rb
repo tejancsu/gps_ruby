@@ -22,6 +22,8 @@ describe Gps::Client do
 
     details    = Gps::Model::PaymentDetails.new
     details.id = payment_id
+    details.database_id = 1234
+    details.payment_support_reference = 'aoeuaoeu'
 
     billing_record         = Gps::Model::BillingRecord.new
     billing_record.id      = UUIDTools::UUID.timestamp_create.to_s
