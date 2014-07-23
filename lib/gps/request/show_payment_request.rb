@@ -1,9 +1,9 @@
-class Gps::Request::CancelRequest < Gps::Request::Base
+class Gps::Request::ShowPaymentRequest < Gps::Request::Base
   property :country_code
   property :payment_id
 
   def type
-    Gps::Request::Types::CANCEL
+    Gps::Request::Types::SHOW_PAYMENT
   end
 
   def url
@@ -11,6 +11,6 @@ class Gps::Request::CancelRequest < Gps::Request::Base
   end
 
   def http_method
-    :delete
+    :get
   end
 end

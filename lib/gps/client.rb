@@ -15,18 +15,18 @@ class Gps::Client
     ("Gps::Response::" + request_type.to_s.camelize + "Response").constantize
   end
 
-  def execute(request_type, params, url_params = {})
+  def execute(request_type, params)
     @logger_id = UUIDTools::UUID.timestamp_create.to_s
     params.dottable! if params.respond_to?(:dottable!)
     @logger.info(@logger_id, "execute.start", params.to_hash)
     if Gps::Request::Types::ALL.include?(request_type)
       begin
-        if Rails.env.test? && !url_params.include?(:stubbed_response)
-          url_params[:stubbed_response] = generic_stubbed_response(request_type, params)
-        elsif return_stubbed_response?(request_type)
-          url_params[:stubbed_response] = stubbed_response(request_type)
+        if Rails.env.test? && !params.respond_to?(:stubbed_response)
+          params[:stubbed_response] = generic_stubbed_response(request_type, params)
+        elsif Rails.env.test? && params.stubbed_response.nil?
+          params.stubbed_response = generic_stubbed_response(request_type, params)
         end
-        request = self.request_class(request_type).new(@config.host, params, url_params)
+        request = self.request_class(request_type).new(@config.host, params)
       rescue Gps::Request::ParamsErrorException, Gps::Request::TypeMissingException => e
         return self.response_class(request_type).new(:failed, e.message)
       end
@@ -147,20 +147,6 @@ class Gps::Client
   # For testing
   ####################
 
-  # when specific parameters are passed in, automatically return success or failure
-  def return_stubbed_response?(request_type)
-    # TODO - figure out default succeed / fail values
-    case request_type
-    when Gps::Request::Types::CREATE_BILLING_RECORD
-    when Gps::Request::Types::GET_BILLING_RECORDS
-    when Gps::Request::Types::GET_PAYMENT_ATTRIBUTES
-    when Gps::Request::Types::GET_PAYMENT_TYPES
-    else
-    end
-
-    return false # for now
-  end
-
   def stubbed_response(request_type)
     # TODO - figure out default succeed / fail values for payments
     case request_type
@@ -227,7 +213,7 @@ class Gps::Client
       {
         :payment_types => stubbed_payment_types
       }.to_json
-    when Gps::Request::Types::PAYMENTS
+    when Gps::Request::Types::COMPLETE_AUTH
       {}.to_json
     when Gps::Request::Types::AUTHORIZE
       {
@@ -246,6 +232,8 @@ class Gps::Client
         "id" => params.try(:payment_details).try(:id),
         "databaseId" => params.try(:payment_details).try(:database_id)
       }.to_json
+    when Gps::Request::Types::CAPTURE, Gps::Request::Types::REFUND
+      {}.to_json
     else
       {
         :generic_response => "response"

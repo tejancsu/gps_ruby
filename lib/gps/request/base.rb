@@ -2,14 +2,13 @@ class Gps::Request::Base
 
   include ::Gps::RequestValidator
 
-  attr_accessor :stubbed_response
+  attr_accessor :stubbed_response, :params
   # params can be a hash or a Gps::Model instance
-  def initialize(host, params, url_params = {})
+  def initialize(host, params)
     @host = host
     @params = params
-    @url_params = url_params
     self.validate_request(@params)
-    @stubbed_response = url_params[:stubbed_response]
+    @stubbed_response = params.stubbed_response if params.respond_to?(:stubbed_response)
   end
 
   # The child classes will add the parameters relevant

@@ -3,6 +3,7 @@ require 'spec_helper'
 describe Gps::Request::AuthorizeRequest do
   let(:authorize_request) do
     {
+      :country_code => 'DE',
       :payment_details => payment_details,
       :settlement_details => settlement_details
     }
@@ -10,7 +11,7 @@ describe Gps::Request::AuthorizeRequest do
 
   let(:payment_details) do
     {
-      :id => UUIDTools::UUID.random_create,
+      :id => UUIDTools::UUID.random_create.to_s,
       :database_id => 12345,
       :payment_support_reference => "aoeuaoeu1",
       :billing_record => billing_record,
@@ -29,7 +30,7 @@ describe Gps::Request::AuthorizeRequest do
 
   let(:billing_record) do
     {
-      :id => UUIDTools::UUID.random_create
+      :id => UUIDTools::UUID.random_create.to_s
     }
   end
 

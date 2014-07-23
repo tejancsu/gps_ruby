@@ -97,7 +97,9 @@ describe Gps::Client do
     request.payment_details    = details
     request.settlement_details = settlement_details
 
-    response = gps_client.execute(Gps::Request::Types::AUTHORIZE, request, {:country_code => 'US', :payment_id => payment_id})
+    request.country_code = 'US'
+
+    response = gps_client.execute(Gps::Request::Types::AUTHORIZE, request)
     response.status.should == :succeeded
     response.success?.should be_true
     response.errors.should be_nil
@@ -118,7 +120,10 @@ describe Gps::Client do
 
     request.capture_details = details
 
-    response = gps_client.execute(Gps::Request::Types::CAPTURE, request, {:country_code => 'US', :payment_id => payment_id})
+    request.country_code = 'US'
+    request.payment_id = payment_id
+
+    response = gps_client.execute(Gps::Request::Types::CAPTURE, request)
     response.status.should == :succeeded
     response.success?.should be_true
     response.errors.should be_nil
@@ -135,9 +140,26 @@ describe Gps::Client do
     details.id     = UUIDTools::UUID.timestamp_create.to_s
     details.amount = amount
 
-    request.refund_details = details
 
-    response = gps_client.execute(Gps::Request::Types::REFUND, request, {:country_code => 'US', :payment_id => payment_id})
+    settlement_details         = Gps::Model::SettlementDetails.new
+    settlement_details.version = '1.0'
+    settlement_details.items   = []
+
+    amount1               = Gps::Model::Amount.new
+    amount1.value         = 617
+    amount1.currency_code = 'USD'
+    item1                 = Gps::Model::Item.new
+    item1.amount          = amount1
+    item1.type            = 'GLOBAL_TRAVEL'
+    settlement_details.items << item1
+    
+    request.refund_details = details
+    request.settlement_details = settlement_details
+
+    request.country_code = 'US'
+    request.payment_id = payment_id
+
+    response = gps_client.execute(Gps::Request::Types::REFUND, request)
     response.status.should == :succeeded
     response.success?.should be_true
     response.errors.should be_nil

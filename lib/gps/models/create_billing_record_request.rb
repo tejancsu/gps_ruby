@@ -1,6 +1,7 @@
 module Gps
   module Model
     class CreateBillingRecordRequest < Resource
+      attribute :stubbed_response
       attribute :id
       attribute :type
       attribute :variant
