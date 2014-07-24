@@ -164,14 +164,14 @@ class Gps::Client
         { "type" => params[:type], # params.type will return Hash
           "id" => params.try(:id),
           "variant" => params.try(:variant),
-          "billingAddress" =>
+          "billing_address" =>
             { "name" => params.try(:billing_address).try(:name),
               "state" => params.try(:billing_address).try(:state),
-              "countryIsoCode" => params.try(:billing_address).try(:country_iso_code),
+              "country_iso_code" => params.try(:billing_address).try(:country_iso_code),
               "city" => params.try(:billing_address).try(:city),
-              "postalCode" => params.try(:billing_address).try(:postal_code),
-              "addressLine1" => params.try(:billing_address).try(:address_line1),
-              "addressLine2" => params.try(:billing_address).try(:address_line2),
+              "postal_code" => params.try(:billing_address).try(:postal_code),
+              "address_line1" => params.try(:billing_address).try(:address_line1),
+              "address_line2" => params.try(:billing_address).try(:address_line2),
               "district" => params.try(:billing_address).try(:district)
             },
           "purchaser" =>
@@ -180,22 +180,22 @@ class Gps::Client
               "locale" => params.try(:purchaser).try(:locale),
               "email" => params.try(:purchaser).try(:email)
             },
-          "paymentData" =>
+          "payment_data" =>
             { "name" => params.try(:payment_data).try(:holder_name),
               "number" => params.try(:payment_data).try(:number),
               "cvv" => params.try(:payment_data).try(:cvv),
-              "expiryMonth" => params.try(:payment_data).try(:expiry_month),
-              "expiryYear" => params.try(:payment_data).try(:expiry_year)
+              "expiry_month" => params.try(:payment_data).try(:expiry_month),
+              "expiry_year" => params.try(:payment_data).try(:expiry_year)
             },
-          "tokenData" =>
+          "token_data" =>
           [ {
-              "tokenStore" => "ADYEN",
-              "tokenId" => "adyenRecurringId-123",
+              "token_store" => "ADYEN",
+              "token_id" => "adyenRecurringId-123",
               "status" => "UPTODATE"
             },
             {
-              "tokenStore" => "PCI-TOKENIZER",
-              "tokenId" => "9901900000000051111",
+              "token_store" => "PCI-TOKENIZER",
+              "token_id" => "9901900000000051111",
               "status" => "UPTODATE"
             } ],
           "created_at" => Time.now,
@@ -230,7 +230,7 @@ class Gps::Client
           }
         },
         "id" => params.try(:payment_details).try(:id),
-        "databaseId" => params.try(:payment_details).try(:database_id)
+        "database_id" => params.try(:payment_details).try(:database_id)
       }.to_json
     when Gps::Request::Types::CAPTURE, Gps::Request::Types::REFUND
       {}.to_json
@@ -249,6 +249,6 @@ class Gps::Client
   end
 
   def stubbed_billing_record
-    Gps::StubbedBillingRecord.new
+    Gps::StubbedBillingRecord.new.billing_record
   end
 end

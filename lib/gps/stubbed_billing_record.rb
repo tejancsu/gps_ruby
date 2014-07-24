@@ -1,35 +1,35 @@
-class Gps::StubbedBillingRecord < Gps::BillingRecord
-
-  def initialize
-    initialize_stubbed_billing_record
-  end
-
-  private
-
-  def initialize_stubbed_billing_record
-    @id = UUIDTools::UUID.timestamp_create.to_s
-    @consumer_id = UUIDTools::UUID.timestamp_create.to_s
-    @created_at = Time.now
-    @updated_at = Time.now
-    @is_disabled = false
-    @billing_id = "12345"
-    @number = "****-1111"
-    @first_name = "Test"
-    @last_name = "Name"
-    @full_name = "Test Name"
-    @card_type = "visa"
-    @billing_type = "creditcard"
-    @month = 12
-    @year = 2015
-    @address1 = "3101, Park Blvd."
-    @city = "Palo Alto"
-    @state = "CA"
-    @country_and_state = "US[California]"
-    @zip = "94306"
-    @country = "US"
-    @gateway = 'Adyen'
-    @active = true
-    @consumer_id = "a025838c-7a26-11e2-8271-002590980712"
-    @tokenized_pan = "4111111111111111"
+class Gps::StubbedBillingRecord
+ def billing_record
+    {
+     "id" => UUIDTools::UUID.timestamp_create.to_s,
+     "type" => 'creditcard',
+     "variant" => 'visa',
+     "billing_address" => {
+                          "postal_code"      => '12345',
+                          "country_iso_code" => 'DE',
+                          "state"            => 'State',
+                          "district"         => 'District',
+                          "city"             => 'Town',
+                          "address_line1"    => 'Street 12',
+                          "address_line2"    => 'last House in the street',
+                          "name"             => 'Mr & Ms Muster'
+                          },
+     "payment_data" =>  {
+                        "holder_name"    => 'Max Muster',
+                        "number"         => '4242424242424242',
+                        "cvv"            => '1234',
+                        "expiry_month"   => '12',
+                        "expiry_year"    => '2017'
+                        },
+     "purchaser" => {
+                      "name"           => 'Marianne Muster',
+                      "email"          => 'marianne.muster@example.com',
+                      "locale"         => 'de_DE',
+                      "id"             => UUIDTools::UUID.random_create
+                    },
+     "created_at" => Time.now,
+     "updated_at" => Time.now,
+     "active" => true
+    }
   end
 end

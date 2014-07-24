@@ -179,27 +179,27 @@ describe Gps::Client do
       br["created_at"].should be_present
       br["updated_at"].should be_present
 
-      br["billingAddress"]["name"].should == request_params[:billing_address][:name]
-      br["billingAddress"]["state"].should == request_params[:billing_address][:state]
-      br["billingAddress"]["countryIsoCode"].should == request_params[:billing_address][:country_iso_code]
-      br["billingAddress"]["city"].should == request_params[:billing_address][:city]
-      br["billingAddress"]["postalCode"].should == request_params[:billing_address][:postal_code]
-      br["billingAddress"]["addressLine1"].should == request_params[:billing_address][:address_line1]
-      br["billingAddress"]["addressLine2"].should == request_params[:billing_address][:address_line2]
-      br["billingAddress"]["district"].should == request_params[:billing_address][:district]
+      br["billing_address"]["name"].should == request_params[:billing_address][:name]
+      br["billing_address"]["state"].should == request_params[:billing_address][:state]
+      br["billing_address"]["country_iso_code"].should == request_params[:billing_address][:country_iso_code]
+      br["billing_address"]["city"].should == request_params[:billing_address][:city]
+      br["billing_address"]["postal_code"].should == request_params[:billing_address][:postal_code]
+      br["billing_address"]["address_line1"].should == request_params[:billing_address][:address_line1]
+      br["billing_address"]["address_line2"].should == request_params[:billing_address][:address_line2]
+      br["billing_address"]["district"].should == request_params[:billing_address][:district]
 
       br["purchaser"]["name"].should == request_params[:purchaser][:name]
       br["purchaser"]["id"].should == request_params[:purchaser][:id].to_s
       br["purchaser"]["locale"].should == request_params[:purchaser][:locale]
       br["purchaser"]["email"].should == request_params[:purchaser][:email]
 
-      br["paymentData"]["name"].should == request_params[:payment_data][:holder_name]
-      br["paymentData"]["number"].should == request_params[:payment_data][:number]
-      br["paymentData"]["cvv"].should == request_params[:payment_data][:cvv]
-      br["paymentData"]["expiryMonth"].should == request_params[:payment_data][:expiry_month]
-      br["paymentData"]["expiryYear"].should == request_params[:payment_data][:expiry_year]
+      br["payment_data"]["name"].should == request_params[:payment_data][:holder_name]
+      br["payment_data"]["number"].should == request_params[:payment_data][:number]
+      br["payment_data"]["cvv"].should == request_params[:payment_data][:cvv]
+      br["payment_data"]["expiry_month"].should == request_params[:payment_data][:expiry_month]
+      br["payment_data"]["expiry_year"].should == request_params[:payment_data][:expiry_year]
 
-      br["tokenData"].should be_present
+      br["token_data"].should be_present
     when Gps::Request::Types::GET_BILLING_RECORDS
       response.billing_records.should_not be_nil
     when Gps::Request::Types::GET_PAYMENT_ATTRIBUTES
@@ -210,7 +210,7 @@ describe Gps::Client do
       response.response["links"].should_not be_nil
       response.response["links"]["capture"].should_not be_nil
       response.response["id"].should == request_params[:payment_details][:id].to_s
-      response.response["databaseId"].should == request_params[:payment_details][:database_id]
+      response.response["database_id"].should == request_params[:payment_details][:database_id]
     else
     end
   end
