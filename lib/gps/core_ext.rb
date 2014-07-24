@@ -1,5 +1,5 @@
 # Be friendly outside of Rails / Orders...
-
+puts "tsudha"
 unless Object.const_defined?('Rails')
   module Rails
     def self.env

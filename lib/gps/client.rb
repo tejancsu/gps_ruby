@@ -162,30 +162,30 @@ class Gps::Client
     case request_type
     when Gps::Request::Types::CREATE_BILLING_RECORD
         { "type" => params[:type], # params.type will return Hash
-          "id" => params.try(:id),
-          "variant" => params.try(:variant),
+          "id" => params[:id],
+          "variant" => params[:variant],
           "billing_address" =>
-            { "name" => params.try(:billing_address).try(:name),
-              "state" => params.try(:billing_address).try(:state),
-              "country_iso_code" => params.try(:billing_address).try(:country_iso_code),
-              "city" => params.try(:billing_address).try(:city),
-              "postal_code" => params.try(:billing_address).try(:postal_code),
-              "address_line1" => params.try(:billing_address).try(:address_line1),
-              "address_line2" => params.try(:billing_address).try(:address_line2),
-              "district" => params.try(:billing_address).try(:district)
+            { "name" => params[:billing_address][:name],
+              "state" => params[:billing_address][:state],
+              "country_iso_code" => params[:billing_address][:country_iso_code],
+              "city" => params[:billing_address][:city],
+              "postal_code" => params[:billing_address][:postal_code],
+              "address_line1" => params[:billing_address][:address_line1],
+              "address_line2" => params[:billing_address][:address_line2],
+              "district" => params[:billing_address][:district]
             },
           "purchaser" =>
-            { "name" => params.try(:purchaser).try(:name),
-              "id" => params.try(:purchaser).try(:id),
-              "locale" => params.try(:purchaser).try(:locale),
-              "email" => params.try(:purchaser).try(:email)
+            { "name" => params[:purchaser][:name],
+              "id" => params[:purchaser][:id],
+              "locale" => params[:purchaser][:locale],
+              "email" => params[:purchaser][:email]
             },
           "payment_data" =>
-            { "name" => params.try(:payment_data).try(:holder_name),
-              "number" => params.try(:payment_data).try(:number),
-              "cvv" => params.try(:payment_data).try(:cvv),
-              "expiry_month" => params.try(:payment_data).try(:expiry_month),
-              "expiry_year" => params.try(:payment_data).try(:expiry_year)
+            { "name" => params[:payment_data][:holder_name],
+              "number" => params[:payment_data][:number],
+              "cvv" => params[:payment_data][:cvv],
+              "expiry_month" => params[:payment_data][:expiry_month],
+              "expiry_year" => params[:payment_data][:expiry_year]
             },
           "token_data" =>
           [ {
@@ -229,8 +229,8 @@ class Gps::Client
             }
           }
         },
-        "id" => params.try(:payment_details).try(:id),
-        "database_id" => params.try(:payment_details).try(:database_id)
+        "id" => params[:payment_details][:id],
+        "database_id" => params[:payment_details][:database_id]
       }.to_json
     when Gps::Request::Types::CAPTURE, Gps::Request::Types::REFUND
       {}.to_json
