@@ -10,9 +10,9 @@ end
 
 # rails try
 class Object
-  def try(method)
+  def try_this(method, *args)
     if self.respond_to?(method.to_sym)
-      self.send(method)
+      self.send(method, *args)
     else
       nil
     end
