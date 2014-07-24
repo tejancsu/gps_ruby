@@ -1,0 +1,33 @@
+class Gps::Request::GetBillingRecordsRequest < Gps::Request::Base
+<<<<<<< HEAD
+  property :country_code
+  property :consumer_id
+  
+=======
+
+>>>>>>> 4b858a5... 2230 v2
+  def type
+    Gps::Request::Types::GET_BILLING_RECORDS
+  end
+
+  def url
+<<<<<<< HEAD
+    "#{@host}/temporary_get_billing_records"
+=======
+    "#{@host}/#{@url_params[:country_code]}/billing_records#{self.query_string}"
+  end
+
+  def query_string
+    "?purchaser_id=#{@url_params[:purchaser_id]}"
+>>>>>>> 4b858a5... 2230 v2
+  end
+
+  def http_method
+    :get
+  end
+
+  def required_url_params
+    [:country_code, :purchaser_id]
+  end
+
+end
